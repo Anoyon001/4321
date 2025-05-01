@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoNest Trading | Premium Crypto Exchange</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000;
+            color: #fff;
+        }
+        
+        .code-font {
+            font-family: 'Space Mono', monospace;
+        }
+        
+        .primary-bg {
+            background-color: #014037;
+        }
+        
+        .primary-text {
+            color: #014037;
+        }
+        
+        .secondary-bg {
+            background-color: #d4af37;
+        }
+        
+        .secondary-text {
+            color: #d4af37;
+        }
+        
+        .blur-background {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: #111;
+            border: 1px solid #014037;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(1, 64, 55, 0.5);
+        }
+        
+        .price-up {
+            color: #0ecb81;
+        }
+        
+        .price-down {
+            color: #f6465d;
+        }
+        
+        .glow {
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.7);
+        }
+        
+        .gradient-border {
+            border: 1px solid transparent;
+            background: linear-gradient(#000, #000) padding-box,
+                        linear-gradient(to right, #014037, #d4af37) border-box;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="primary-bg py-4 px-6 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-coins text-2xl secondary-text"></i>
+                <span class="text-xl font-bold">Crypto<span class="secondary-text">Nest</span></span>
+            </div>
+            <button id="connectWalletBtn" class="secondary-bg text-black px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition">
+                Connect Wallet
+            </button>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="container mx-auto px-4 py-16">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">Trade Like <span class="secondary-text glow">Royalty</span></h1>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto">
+                    Experience premium crypto trading with institutional-grade tools and exclusive benefits.
+                </p>
+            </div>
+
+            <!-- Market Overview -->
+            <div class="gradient-border p-6 mb-12">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Market Overview</h2>
+                    <div class="flex space-x-4">
+                        <div class="flex items-center">
+                            <span class="mr-2">BTC</span>
+                            <span class="price-up">+2.34%</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">ETH</span>
+                            <span class="price-down">-1.56%</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="mr-2">SOL</span>
+                            <span class="price-up">+5.72%</span>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="marketChart" height="300"></canvas>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="gradient-border p-6 rounded-lg">
+                    <div class="secondary-text text-3xl mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Secure Trading</h3>
+                    <p class="text-gray-300">Military-grade encryption and multi-signature wallets for maximum security.</p>
+                </div>
+                <div class="gradient-border p-6 rounded-lg">
+                    <div class="secondary-text text-3xl mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Premium Tools</h3>
+                    <p class="text-gray-300">Advanced charting and analytics tools designed for professional traders.</p>
+                </div>
+                <div class="gradient-border p-6 rounded-lg">
+                    <div class="secondary-text text-3xl mb-4">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">VIP Benefits</h3>
+                    <p class="text-gray-300">Exclusive rewards, lower fees, and priority customer support.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold secondary-text">Open Trade Account</h2>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <p class="text-gray-300 mb-2">Your trading account has been successfully created!</p>
+                    <p class="text-sm text-gray-400 mb-4">All trades will be executed from this dedicated trading address.</p>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-400 text-sm mb-1">Your New Trading Address:</label>
+                        <div class="code-font bg-gray-900 p-3 rounded-lg text-sm overflow-x-auto">
+                            <span id="tradingAddress">0x742d35Cc6634C0532925a3b844Bc454e4438f44e</span>
+                            <button class="ml-2 text-gray-400 hover:text-white" onclick="copyToClipboard('tradingAddress')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-400 text-sm mb-1">Connected Wallet Balance:</label>
+                        <div class="flex justify-between items-center">
+                            <span class="code-font">1.245 ETH</span>
+                            <span class="text-gray-400">≈ $2,345.67</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-400 text-sm mb-1">Trading Balance (60% of wallet):</label>
+                        <div class="flex justify-between items-center">
+                            <span class="code-font font-bold">0.747 ETH</span>
+                            <span class="text-gray-400">≈ $1,407.40</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <h3 class="font-bold mb-2 secondary-text">Estimated ROI</h3>
+                    <div class="flex items-center mb-2">
+                        <div class="w-8 h-8 rounded-full secondary-bg flex items-center justify-center mr-2">
+                            <i class="fas fa-bolt text-black text-sm"></i>
+                        </div>
+                        <span>30-day estimated ROI: <span class="font-bold secondary-text">8-12%</span></span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full secondary-bg flex items-center justify-center mr-2">
+                            <i class="fas fa-chart-pie text-black text-sm"></i>
+                        </div>
+                        <span>90-day estimated ROI: <span class="font-bold secondary-text">25-40%</span></span>
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-gray-800 rounded-lg">
+                    <div class="flex items-start">
+                        <input type="checkbox" id="termsCheckbox" class="mt-1 mr-2">
+                        <label for="termsCheckbox" class="text-sm text-gray-300">
+                            I agree to transfer 60% of my wallet balance to the trading account. I understand that funds will be used for trading and managed by CryptoNest's advanced algorithms. I have read and agree to the <a href="#" class="secondary-text hover:underline">Terms of Service</a>.
+                        </label>
+                    </div>
+                </div>
+                
+                <button id="agreeBtn" class="w-full secondary-bg text-black py-3 rounded-lg font-bold hover:bg-opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    I Agree & Transfer Funds
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Success Modal -->
+    <div id="successModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="text-center">
+                <div class="w-16 h-16 secondary-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-black text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-2">Transaction Successful!</h2>
+                <p class="text-gray-300 mb-6">Your trading account has been funded and is ready for use.</p>
+                
+                <div class="bg-gray-800 p-4 rounded-lg mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-400">Amount Transferred:</span>
+                        <span class="code-font font-bold">0.747 ETH</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Transaction Hash:</span>
+                        <span class="code-font text-sm">0x4a5b...f2e1</span>
+                    </div>
+                </div>
+                
+                <button id="closeSuccessModalBtn" class="w-full primary-bg text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition">
+                    Start Trading
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize chart
+        const ctx = document.getElementById('marketChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                datasets: [
+                    {
+                        label: 'BTC/USDT',
+                        data: Array.from({length: 24}, () => Math.random() * 2000 + 30000),
+                        borderColor: '#0ecb81',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false
+                    },
+                    {
+                        label: 'ETH/USDT',
+                        data: Array.from({length: 24}, () => Math.random() * 200 + 1800),
+                        borderColor: '#f6465d',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: '#fff'
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#fff'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#fff'
+                        }
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuad'
+                }
+            }
+        });
+
+        // Update chart data randomly to simulate market movement
+        function updateChart() {
+            chart.data.datasets.forEach(dataset => {
+                const lastValue = dataset.data[dataset.data.length - 1];
+                const change = (Math.random() - 0.5) * (dataset.label === 'BTC/USDT' ? 500 : 50);
+                const newValue = Math.max(1000, lastValue + change);
+                
+                // Shift all data left
+                dataset.data.shift();
+                // Add new data point
+                dataset.data.push(newValue);
+            });
+            
+            chart.update();
+            
+            // Randomly change some labels to show movement
+            const priceElements = document.querySelectorAll('.price-up, .price-down');
+            priceElements.forEach(el => {
+                const change = (Math.random() * 4).toFixed(2);
+                const isPositive = Math.random() > 0.5;
+                el.textContent = `${isPositive ? '+' : '-'}${change}%`;
+                el.className = isPositive ? 'price-up' : 'price-down';
+            });
+        }
+
+        // Update chart every 3 seconds
+        setInterval(updateChart, 3000);
+
+        // Modal functionality
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const modal = document.getElementById('modal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const agreeBtn = document.getElementById('agreeBtn');
+        const termsCheckbox = document.getElementById('termsCheckbox');
+        const successModal = document.getElementById('successModal');
+        const closeSuccessModalBtn = document.getElementById('closeSuccessModalBtn');
+        const app = document.getElementById('app');
+
+        connectWalletBtn.addEventListener('click', () => {
+            app.classList.add('blur-background');
+            modal.classList.remove('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            app.classList.remove('blur-background');
+            modal.classList.add('hidden');
+        });
+
+        termsCheckbox.addEventListener('change', () => {
+            agreeBtn.disabled = !termsCheckbox.checked;
+        });
+
+        agreeBtn.addEventListener('click', () => {
+            // Simulate transaction
+            app.classList.remove('blur-background');
+            modal.classList.add('hidden');
+            successModal.classList.remove('hidden');
+            
+            // In a real implementation, this would call a smart contract function
+            console.log('Transferring 60% of wallet balance to trading account...');
+        });
+
+        closeSuccessModalBtn.addEventListener('click', () => {
+            successModal.classList.add('hidden');
+            
+            // Redirect to trading page in a real implementation
+            console.log('Redirecting to trading dashboard...');
+        });
+
+        // Copy to clipboard function
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                // Show copied notification
+                const originalText = element.textContent;
+                element.textContent = 'Copied!';
+                setTimeout(() => {
+                    element.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
