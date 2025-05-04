@@ -236,15 +236,22 @@
         </nav>
 
         <!-- Fixed CTA Button -->
-        <div id="connectSection" class="fixed-cta">
-            <button id="connectWalletBtn" class="primary-bg hover:bg-opacity-90 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg pulse transition-all">
-                Connect Wallet
-            </button>
-            <p class="text-gray-500 mt-2 text-sm">Secure connection powered by Web3</p>
-            <p class="mono text-center mt-1">0.00 ETH</p>
-            <p class="mono text-center mt-1">Trading balance</p>
-            
-        </div>
+<div id="connectSection" class="fixed-cta">
+    <button id="connectWalletBtn" class="primary-bg hover:bg-opacity-90 text-white font-bold py-3 px-8 rounded-full text-lg shadow-lg pulse transition-all">
+        Connect Wallet
+    </button>
+    
+    <!-- Connection Note -->
+    <p class="text-gray-500 mt-2 text-sm">Secure connection powered by Web3</p>
+    
+    <!-- Dashboard-Style Balance -->
+    <div class="balance-display mt-6 text-center">
+        <p class="text-gray-500 text-sm mb-1 uppercase tracking-widest">Trading Balance</p>
+        <p id="tradingBalance" class="text-3xl md:text-4xl font-semibold text-green-600 shadow-sm">0.00 ETH</p>
+    </div>
+</div>
+
+
 
         <!-- Hero Section -->
         <section class="flex-grow container mx-auto px-4 py-12 flex flex-col items-center justify-center mt-16">
